@@ -1,0 +1,12 @@
+dist: trusty
+language: cpp
+compiler: gcc
+
+addons:
+  apt:
+    packages:
+    
+script:
+- cmake .
+- make -j1
+- make package
