@@ -5,6 +5,8 @@ compiler: gcc
 addons:
   apt:
     packages:
+    - cmake
+    - lua5.2
     
 script:
 - cmake .
