@@ -10,7 +10,7 @@ addons:
     - liblua5.2-dev
 script:
 - export DATE=$(date +'%Y%m%d%H%M%S')
-- cmake . -DBUILD_LUA=OFF -DMINOR="$(DATE)"
+- cmake . -DBUILD_LUA=OFF -DMINOR="${DATE}"
 - make -j1
 - make package
 - git tag "$(DATE)"
