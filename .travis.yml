@@ -7,6 +7,7 @@ addons:
     packages:
     - cmake
     - lua5.2
+    - libjson-c-dev
     
 script:
 - cmake .
