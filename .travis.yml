@@ -8,6 +8,7 @@ addons:
     - cmake
     - lua5.2
     - libjson-c-dev
+    - liblua5.2-dev
     
 script:
 - cmake .
