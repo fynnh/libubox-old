@@ -11,7 +11,6 @@ addons:
     - liblua5.2-dev
     
 script:
-- sudo find / -name "lua.h"
-- cmake .
+- cmake . -DBUILD_LUA=OFF
 - make -j1
 - make package

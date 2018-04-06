@@ -5,7 +5,7 @@ PROJECT(uloop C)
 SET(CMAKE_INSTALL_PREFIX /)
 
 IF(NOT LUA_CFLAGS)
-	pkg_search_module(LUA lua5.1 lua-5.1 lua5.2 lua-5.2)
+	pkg_search_module(LUA lua5.1 lua-5.1)
 ENDIF()
 
 ADD_DEFINITIONS(-Os -Wall -Werror --std=gnu99 -g3 -I.. ${LUA_CFLAGS})
