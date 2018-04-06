@@ -9,9 +9,11 @@ addons:
     - libjson-c-dev
     - liblua5.2-dev
 script:
-- cmake . -DBUILD_LUA=OFF
+- export DATE=$(date +'%Y%m%d%H%M%S')
+- cmake . -DBUILD_LUA=OFF -DMINOR="$(DATE)"
 - make -j1
 - make package
+- git tag "$(DATE)"
 deploy:
   - provider: releases
     api_key:
