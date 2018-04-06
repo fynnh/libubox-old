@@ -30,4 +30,4 @@ deploy:
     skip_cleanup: true
     on:
       all_branches: true
-    package_glob: "*.deb"
+    package_glob: "ubox*.deb"
