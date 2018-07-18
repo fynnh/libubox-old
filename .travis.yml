@@ -1,3 +1,21 @@
+##############################################################################################
+#
+# Travis CI configuration file
+# 
+# Set the required secrets in the build settings of the project:
+#   - BINTRAY_USER
+#   - BINTRAY_API_KEY
+#   - GITHUB_API_KEY
+#
+##############################################################################################
+
+env:
+  global:
+  - PACKAGE_NAME=ubox
+  - BINTRAY_REPO_NAME=debian
+  - BINTRAY_LICENSE=ISC
+
+
 dist: trusty
 language: cpp
 compiler: gcc
@@ -8,32 +26,38 @@ addons:
     - lua5.2
     - libjson-c-dev
     - liblua5.2-dev
+    
+before_install:
+  - export DATE=$(date +'%Y%m%d%H%M%S')
+  - export BUILD_VERSION=1.$DATE
+  - export BUILD_DATE=$(date "+%Y%m%d")    
+    
 script:
-- export DATE=$(date +'%Y%m%d%H%M%S')
 - cmake . -DBUILD_LUA=OFF -DMINOR="${DATE}"
 - make -j1
 - make package
 
 before_deploy:
-- git tag "${DATE}" || true
+  # Set the packages name and details in the descriptor file
+  - sed -i "s/__NAME__/$PACKAGE_NAME/g" bintray-descriptor.json
+  - sed -i "s/__REPO_NAME__/$BINTRAY_REPO_NAME/g" bintray-descriptor.json
+  - sed -i "s/__SUBJECT__/$BINTRAY_USER/g" bintray-descriptor.json
+  - sed -i "s/__LICENSE__/$BINTRAY_LICENSE/g" bintray-descriptor.json
+  - sed -i "s/__VERSION__/$BUILD_VERSION/g" bintray-descriptor.json
+  - git tag "${DATE}" || true
 
 deploy:
   - provider: releases
-    api_key:
-      secure: syqU2fT1vGbdA5WrvtvgeIburxffJK4s3hE42Fmu7T1xr875iZtCzTp21ImD2JatJFhTdJrRtxQZRe0QViXkTiOJBqIaR0JMB++FMJOyEifkK3hjBhsA0aTuXeLL5OmpF3pXYvoKM3DYw+wkTe5khKFbc5VTvIX7yVaXw5vVLjfWHOW6TtKzoepFoRv0ceHbLmOUv5IxEhhsoaCuUMMvocQ5lUk/dZfayeyuAHzD4aLpG3oQPdgGC50jj/A8LGqLOa1BnmIGgPG8BBLcAAFtjkFUn87Ed0RIOFVGn03uZ7VZsCOVMXNISWHhsmVIOTeU+dzZEFH4FjD9IcrsSu2vbAFMSvfDL3qN3nDM3uzF5usgHPTVVJAbYPAqAWCMT043kUP98Nk7I28LxYmBKmUuEMcfMJdOkF3j9fI2+Qn69y6eBX8c5dyauIL1qAqOVS27fX1hx1yEZksET13NE31ghA4yjwLTXcZKJa1uwf5E96M8ifIEupfSNPO1S3hy8TpNdRMc1jSSurEz6U4om2G1vhiKmO9KqpeuYZQFrbsDLHtlyZmhbhkl7R4oLeG7b0K3bx1TXxzGHD/j8I3octJ8ktqs2JMyIioEuaCKmn9arN5Nefjz0e4cF7tkHFABN3bO9RE31BHI3i7JerQlkVn8nAX4GfzX6xWb3j5Hv9SlA7k=
+    api_key: $GITHUB_API_KEY
     file_glob: true
     file: ubox-*-Linux.deb
     skip_cleanup: true
     on:
       branch: master
-  - provider: packagecloud
-    repository: "openc2x"
-    token:
-      secure: gaAPn6f4l2gcrkBt5OO3OKmq9daS0k8JtZd5zTfV+PMhB9XiGFIdt/2TtOaYPOfJ3ytj8qiVJUmPmG/gfXtIraGJmf9RHUPVWHw2RjxqxBF+66dW87wphHjpe3l3EL2yqs0jEuJnmhSupMmHerSP2y6z6hDSxGmQmoD7ONf3LixS+fKixDbh5Wq5euReH/uEoIfcpo7aCyRQh/QdBHtKCjUxYHfXdMqwirx39JYhSwGZYfAvNU0pTrEX0UJyOrdf2FvfHoq0aG1WBuPZ4iIeZwLulPCRWGuJ0IPqlKl9T+f1y95vham4UzWf4+9kzkBT51LZeSX7/uDN78bFEgXnFws+LfC5N26TBXvK4az7vJ2zquk3PPsiirp/RWAgSna+hXBrg730dwfZGsYQXhYG1gPYn6eXsBUvnnmv1ye93z42+9qHbJo4K6VAj5M+5dxQr8hQdLKSjoLnz3WbsravbdCPNJvg4OzOIy0KwWwXwRcAWhF0ui6TJ54CASpVGtMOJ+E0H8SJEheo3HlPzCwhKuodVXZioIr2eEPHjCKsgykDIp0GndB0qHGR503xu33+SkXAUfIHneZ59ksOhUtgExGccEnTxsdj1/rBTo9+N+rF+wlL2oGhcsTqhByG39Wkh5pfqCVzivXur29wDtnqD1DpTyfPM7bcFi4o+APjhdw=
-
-    username: "fynnh"
-    dist: "ubuntu/trusty" # like 'ubuntu/precise', or 'centos/5', if pushing deb or rpms   
+  - provider: bintray
+    file: bintray-descriptor.json
+    user: $BINTRAY_USER
+    key: $BINTRAY_API_KEY
     skip_cleanup: true
     on:
       branch: master
-    package_glob: "ubox*.deb"
